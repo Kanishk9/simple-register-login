@@ -4,7 +4,7 @@ This is a simple login and registration application built using React Native for
 
 ## Features
 
-- User registration with first name, last name, email, phone number, and password
+- User registration with first name, last name, phone number, and password
 - User login with email and password
 - JWT-based authentication
 - Protected resource access
