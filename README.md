@@ -16,9 +16,7 @@ This is a simple login and registration application built using React Native for
 - MySQL
 - React Native development environment
 
-## Getting Started
-
-### Project Structure
+## Project Structure
 ```go
 login-registration-app/
 ├── backend/
@@ -33,5 +31,5 @@ login-registration-app/
     └── package.json
 ```
 
-### Use Case Diagram
+## Use Case Diagram
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/9c6c7f54-e5cf-4f52-ae53-19dfad8f6a6e)
