@@ -7,7 +7,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RegistrationPage from "./src/pages/RegistrationPage";
 import LoginPage from "./src/pages/LoginPage";
 import HomePage from "./src/pages/HomePage";
-import Button from "./src/components/Button";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +17,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Register" component={RegistrationPage} />
           <Stack.Screen name="Login" component={LoginPage} />
-          <Stack.Screen name="Home" component={HomePage} options={{headerShown: true, headerRight: () => <Button title="Log Out" />}} />
+          <Stack.Screen name="Home" component={HomePage} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

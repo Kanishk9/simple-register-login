@@ -1,12 +1,15 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import React, { useRef, useState } from "react";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import Button from "../components/Button";
 import InputField from "../components/InputField";
 import LoadingModal from "../components/LoadingModal";
 import AlertModal from "../components/AlertModal";
 
-const LoginPage = ({navigation}) => {
-  const [phoneNo, setPhoneNo] = useState("");
+const LoginPage = ({ navigation }) => {
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({
@@ -15,25 +18,27 @@ const LoginPage = ({navigation}) => {
     description: "",
   });
 
-  const phoneNoRef = useRef(null);
+  const phoneNumberRef = useRef(null);
   const passwordRef = useRef(null);
 
   //Collect form data
   const postData = () => {
     const postData = {};
-    postData.phoneNo = phoneNoRef.current.value;
-    postData.password = passwordRef.current.value;
+    postData.phoneNumber = phoneNumber;
+    postData.password = password;
+
+    return postData;
   };
 
   //Validate form data
   const validateFormData = () => {
-    if (phoneNo === "") {
+    if (phoneNumber === "") {
       setAlert({
         isAlert: true,
         heading: "Invalid Phone Number",
         description: "Please enter valid phone number.",
       });
-      phoneNoRef.current.focus();
+      phoneNumberRef.current.focus();
       return false;
     }
 
@@ -47,13 +52,13 @@ const LoginPage = ({navigation}) => {
       return false;
     }
 
-    if (phoneNo.length !== 10) {
+    if (phoneNumber.length !== 10) {
       setAlert({
         isAlert: true,
         heading: "Invalid Phone Number Length",
         description: "Phone number should be of 10 digits.",
       });
-      phoneNoRef.current.focus();
+      phoneNumberRef.current.focus();
       return false;
     }
 
@@ -61,21 +66,40 @@ const LoginPage = ({navigation}) => {
   };
 
   //On form submit
-  const onButtonPress = () => {
+  const handleLogin = async () => {
+    //Form data validation
     if (!validateFormData()) return;
 
     //API calls
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate("Home");
-    }, 3000);
+    try {
+      const response = await axios.post(
+        "http://192.168.1.9:3000/login",
+        postData()
+      );
+      if (response.data.success) {
+        // Store the token in local storage or secure store
+        AsyncStorage.setItem("token", response.data.token);
+        // Store the user data in local storage or secure store
+        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+        navigation.navigate("Home");
+      } else {
+        setAlert({ isAlert: true, heading: "Login failed", description: "" });
+      }
+    } catch (error) {
+      console.error(error);
+      setAlert({
+        isAlert: true,
+        heading: "An error occurred",
+        description: "",
+      });
+    }
+    setIsLoading(false);
   };
 
   //Navigate to registration page
   const registerUser = () => {
     navigation.navigate("Register");
-    console.log("Navigate to Register");
   };
 
   return (
@@ -92,9 +116,9 @@ const LoginPage = ({navigation}) => {
           <InputField
             placeholder="Phone Number"
             keyboardType="phone-pad"
-            refObj={phoneNoRef}
-            value={phoneNo}
-            onChangeText={setPhoneNo}
+            refObj={phoneNumberRef}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
             maxLength={10}
             blurOnSubmit={false}
             onSubmitEditing={() => passwordRef.current.focus()}
@@ -107,7 +131,7 @@ const LoginPage = ({navigation}) => {
             onChangeText={setPassword}
           />
         </View>
-        <Button title="Login" onButtonPress={onButtonPress} />
+        <Button title="Login" onButtonPress={handleLogin} />
         <View style={styles.registrationContainer}>
           <Text style={styles.registrationText}>New User?</Text>
           <TouchableOpacity onPress={registerUser}>
@@ -148,9 +172,6 @@ const styles = StyleSheet.create({
   headingText: {
     fontSize: 30,
     fontWeight: "bold",
-  },
-  inputContainer: {
-    //
   },
   registrationContainer: {
     flexDirection: "row",

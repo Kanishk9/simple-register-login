@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Image,TouchableOpacity } from "react-native";
 import React, { useRef, useState } from "react";
+import axios from 'axios';
 
 import Button from "../components/Button";
 import InputField from "../components/InputField";
@@ -7,45 +8,46 @@ import LoadingModal from "../components/LoadingModal";
 import AlertModal from "../components/AlertModal";
 
 const RegistrationPage = ({navigation}) => {
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [phoneNo, setPhoneNo] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState({isAlert: false, heading: '', description: ''});
 
-  const firstnameRef = useRef(null);
-  const lastnameRef = useRef(null);
-  const phoneNoRef = useRef(null);
+  const firstNameRef = useRef(null);
+  const lastNameRef = useRef(null);
+  const phoneNumberRef = useRef(null);
   const passwordRef = useRef(null);
 
   //Collect form data
   const postData = () => {
     const postData = {};
-    postData.firstname = firstnameRef.current.value;
-    postData.lastname = lastnameRef.current.value;
-    postData.phoneNo = phoneNoRef.current.value;
-    postData.password = passwordRef.current.value;
+    postData.firstName = firstName;
+    postData.lastName = lastName;
+    postData.phoneNumber = phoneNumber;
+    postData.password = password;
+
+    return postData;
   }
 
   //Validate form data
   const validateFormData = () => {
-    const validPhoneNo = /^[0-9]*$/
-    if(firstname === ''){
+    if(firstName === ''){
       setAlert({isAlert: true, heading: 'Invalid First Name', description: 'Please enter valid first name.'});
-      firstnameRef.current.focus();
+      firstNameRef.current.focus();
       return false;
     }
 
-    if(lastname === ''){
+    if(lastName === ''){
       setAlert({isAlert: true, heading: 'Invalid Last Name', description: 'Please enter valid last name.'});
-      lastnameRef.current.focus();
+      lastNameRef.current.focus();
       return false;
     }
 
-    if(phoneNo === ''){
+    if(phoneNumber === ''){
       setAlert({isAlert: true, heading: 'Invalid Phone Number', description: 'Please enter valid phone number.'});
-      phoneNoRef.current.focus();
+      phoneNumberRef.current.focus();
       return false;
     }
 
@@ -55,9 +57,9 @@ const RegistrationPage = ({navigation}) => {
       return false;
     }
 
-    if(phoneNo.length !== 10){
+    if(phoneNumber.length !== 10){
       setAlert({isAlert: true, heading: 'Invalid Phone Number Length', description: 'Phone number should be of 10 digits.'});
-      phoneNoRef.current.focus();
+      phoneNumberRef.current.focus();
       return false;
     }
 
@@ -65,21 +67,37 @@ const RegistrationPage = ({navigation}) => {
   }
 
   //On form submit
-  const onButtonPress = () => {
+  const handleRegister = async () => {
+    //Form data validation
     if(!validateFormData()) return;
 
-    //API calls
+    //API Call
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate("Home");
-    }, 3000);
+    try {
+      const response = await axios.post('http://192.168.1.9:3000/register', postData());
+      if (response.data.success) {
+        navigation.navigate('Login');
+      } else {
+        setAlert({
+          isAlert: true,
+          heading: "Registration failed",
+          description: "",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setAlert({
+        isAlert: true,
+        heading: "An error occurred",
+        description: "",
+      });
+    }
+    setIsLoading(false);
   };
   
   //Navigate to log in page
   const logInUser = () => {
     navigation.navigate("Login");
-    console.log();
   }
 
   return (
@@ -95,26 +113,26 @@ const RegistrationPage = ({navigation}) => {
         <View style={styles.inputContainer}>
           <InputField
             placeholder="First Name"
-            refObj={firstnameRef}
-            value={firstname}
-            onChangeText={setFirstname}
+            refObj={firstNameRef}
+            value={firstName}
+            onChangeText={setFirstName}
             blurOnSubmit={false}
-            onSubmitEditing={() => lastnameRef.current.focus()}
+            onSubmitEditing={() => lastNameRef.current.focus()}
           />
           <InputField
             placeholder="Last Name"
-            refObj={lastnameRef}
-            value={lastname}
-            onChangeText={setLastname}
+            refObj={lastNameRef}
+            value={lastName}
+            onChangeText={setLastName}
             blurOnSubmit={false}
-            onSubmitEditing={() => phoneNoRef.current.focus()}
+            onSubmitEditing={() => phoneNumberRef.current.focus()}
           />
           <InputField
             placeholder="Phone Number"
             keyboardType="phone-pad"
-            refObj={phoneNoRef}
-            value={phoneNo}
-            onChangeText={setPhoneNo}
+            refObj={phoneNumberRef}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
             maxLength={10}
             blurOnSubmit={false}
             onSubmitEditing={() => passwordRef.current.focus()}
@@ -127,7 +145,7 @@ const RegistrationPage = ({navigation}) => {
             onChangeText={setPassword}
           />
         </View>
-        <Button title="Register" onButtonPress={onButtonPress} />
+        <Button title="Register" onButtonPress={handleRegister} />
         <View style={styles.logInContainer}>
           <Text style={styles.logInText}>Already a User?</Text>
           <TouchableOpacity onPress={logInUser}>
@@ -167,9 +185,6 @@ const styles = StyleSheet.create({
   headingText: {
     fontSize: 30,
     fontWeight: "bold",
-  },
-  inputContainer: {
-    //
   },
   logInContainer: {
     flexDirection: 'row',

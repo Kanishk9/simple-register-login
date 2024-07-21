@@ -1,9 +1,29 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Button from "../components/Button";
 
-const HomePage = () => {
+const HomePage = ({navigation}) => {
+  const [user, setUser] = useState("");
+
+  const handleLogout = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      await axios.post('http://192.168.1.9:3000/logout', {}, {
+        headers: { 'x-access-token': token }
+      });
+
+      // Remove the token from local storage or secure store
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred');
+    }
+  };
+
   const greeting = () => {
     const time = new Date().getHours();
     if(time >= 4 && time < 12) return "Good Morning!";
@@ -12,9 +32,25 @@ const HomePage = () => {
     else return "Good Night!"
   };
 
+  //Read user data
+  const readData = async () => {
+    try{
+      const user = JSON.parse(await AsyncStorage.getItem("user"));
+      setUser(user.firstName + " " + user.lastName);
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    readData();
+  }, [user]);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{greeting()} Mr. Kanishk Bisht</Text>
+      <Button title="Log Out" onButtonPress={handleLogout} />
+      <Text style={styles.text}>{greeting()} Mr. {user}</Text>
     </View>
   );
 };
