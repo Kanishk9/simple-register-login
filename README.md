@@ -18,12 +18,20 @@ This is a simple login and registration application built using React Native for
 
 ## Getting Started
 
-### Backend Setup
+### Project Structure
+```go
+login-registration-app/
+├── backend/
+│   ├── server.js
+│   └── package.json
+└── frontend/
+    ├── src/
+    │   ├── screens/
+    │   │   ├── LoginScreen.js
+    │   │   └── RegistrationScreen.js
+    │   └── App.js
+    └── package.json
+```
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/yourusername/login-registration-app.git
-   cd login-registration-app
-
+### Use Case Diagram
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/9c6c7f54-e5cf-4f52-ae53-19dfad8f6a6e)
