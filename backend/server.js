@@ -31,8 +31,7 @@ const secretKey = ""; // Use an environment variable for production
 app.post("/register", (req, res) => {
   const { firstName, lastName, phoneNumber, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 8);
-  const query =
-    "INSERT INTO users (first_name, last_name, phone_number, password) VALUES (?, ?, ?, ?)";
+  const query = "CALL InsertUser(?, ?, ?, ?)";
   db.query(
     query,
     [firstName, lastName, phoneNumber, hashedPassword],
@@ -77,6 +76,53 @@ app.post("/logout", (req, res) => {
   //Token deletion will be done by client side
   //Thats why directly responding with success
   res.send({ success: true });
+});
+
+// Get Users
+app.get("/users", (req, res) => {
+  const query = "CALL SelectUsers()";
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error retrieving users");
+    }
+    res.status(200).send(results[0]);
+  });
+});
+
+// Update User
+app.put("/user/:id", (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, phoneNumber, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const query = "CALL UpdateUser(?, ?, ?, ?, ?, ?)";
+
+  db.query(
+    query,
+    [id, firstName, lastName, phoneNumber, hashedPassword],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating user");
+      }
+      res.status(200).send("User updated successfully");
+    }
+  );
+});
+
+// Delete User
+app.delete("/user/:id", (req, res) => {
+  const { id } = req.params;
+  const query = "CALL DeleteUser(?)";
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error deleting user");
+    }
+    res.status(200).send("User deleted successfully");
+  });
 });
 
 const verifyToken = (req, res, next) => {
