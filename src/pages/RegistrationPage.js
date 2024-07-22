@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image,TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { useRef, useState } from "react";
 import axios from 'axios';
 
@@ -104,11 +104,7 @@ const RegistrationPage = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <View style={styles.headingContainer}>
-          <Image
-            style={styles.headingImage}
-            source={require("../assets/images/logo.png")}
-          />
-          <Text style={styles.headingText}>Register to Equip-9</Text>
+          <Text style={styles.headingText}>Register</Text>
         </View>
         <View style={styles.inputContainer}>
           <InputField
